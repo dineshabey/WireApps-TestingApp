@@ -13,4 +13,14 @@ class MedicationController extends Controller
         $response = MedicationFacade::all();
         return $response;
     }
+    public function show($id)
+    {
+        $response = MedicationFacade::show($id);
+        return $response;
+    }
+    public function store(Request $request)
+    {
+        $response = MedicationFacade::store($request);
+        return $response;
+    }
 }

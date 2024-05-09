@@ -25,7 +25,8 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
-            "domain\\": "domain/"
+            "domain\\": "domain/",
+            "App\\Helpers\\": "app/Helpers/"
         }
     },
     "autoload-dev": {

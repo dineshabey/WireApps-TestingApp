@@ -10,7 +10,6 @@ class MedicationFacade extends Facade
 
     protected static function getFacadeAccessor()
     {
-
         return MedicationService::class;
     }
 }

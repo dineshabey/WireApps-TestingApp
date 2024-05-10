@@ -3,7 +3,7 @@
 namespace domain\Services;
 
 use App\Http\Resources\MedicationResource;
-use App\Helpers\ResponseHelper;
+use App\Helpers\ApiResponseHelper;
 use App\Models\Medication;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -21,9 +21,10 @@ class MedicationService
         $medications = $this->medication->all();
 
         if ($medications !== null) {
-            return MedicationResource::collection($medications);
+            $data = MedicationResource::collection($medications);
+            return ApiResponseHelper::success('Medication found', $data);
         } else {
-            return ResponseHelper::createErrorResponse('An error occurred while fetching medications.', 500);
+            return ApiResponseHelper::error('An error occurred while fetching medications.', $medications, 500);
         }
     }
     public function show($id)
@@ -33,14 +34,16 @@ class MedicationService
         ]);
 
         if ($validator->fails()) {
-            return ResponseHelper::createErrorResponse('Invalid medication id', 400);
+            return ApiResponseHelper::error('Validation Failed', $validator->errors()->first(), 400);
         }
         $medication = $this->medication->find($id);
         if (!$medication) {
-            return ResponseHelper::createErrorResponse('Medication not found', 404);
+            return ApiResponseHelper::error('Medication not found', $medication, 404);
         }
-        return new MedicationResource($medication);
+        $data = new MedicationResource($medication);
+        return ApiResponseHelper::success('Medication found', $data);
     }
+
 
     public function store(Request $request)
     {
@@ -52,20 +55,24 @@ class MedicationService
         ]);
 
         if ($validator->fails()) {
-            return ResponseHelper::createErrorResponse($validator->errors()->first(), 400);
+            return ApiResponseHelper::error('Validation Failed', $validator->errors()->first(), 400);
         }
 
-        $this->medication->name = $request->input('name');
-        $this->medication->description = $request->input('description');
-        $this->medication->quantity = $request->input('quantity');
-        $medication = $this->medication->save();
+        try {
+            $medication = new Medication();
+            $medication->name = $request->input('name');
+            $medication->description = $request->input('description');
+            $medication->quantity = $request->input('quantity');
+            $medication->save();
 
-        if (!$medication) {
-            return ResponseHelper::createErrorResponse('Failed to store medication', 500);
+            $data = new MedicationResource($medication);
+            return ApiResponseHelper::success('Medication added successfully', $data);
+        } catch (\Exception $e) {
+            return ApiResponseHelper::error('Failed to add medication', $e->getMessage(), 500);
         }
-        $medications = $this->medication->latest()->first();
-        return new MedicationResource($medications);
     }
+
+
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -75,11 +82,11 @@ class MedicationService
         ]);
 
         if ($validator->fails()) {
-            return ResponseHelper::createErrorResponse($validator->errors()->first(), 400);
+            return ApiResponseHelper::error('Validation Failed', $validator->errors()->first(), 400);
         }
         $medication = $this->medication->find($id);
         if (!$medication) {
-            return ResponseHelper::createErrorResponse('Medication not found', 404);
+            return ApiResponseHelper::error('Medication not found', $medication, 404);
         }
 
         $medication->name = $request->input('name');
@@ -88,10 +95,11 @@ class MedicationService
         $medication->save();
 
         if (!$medication) {
-            return ResponseHelper::createErrorResponse('Failed to update medication', 500);
+            return ApiResponseHelper::error('Failed to update medication', $medication, 500);
         }
 
-        return new MedicationResource($medication);
+        $data = new MedicationResource($medication);
+        return ApiResponseHelper::success('Medication added successfully', $data);
     }
     public function destroy($id)
     {
@@ -100,18 +108,19 @@ class MedicationService
         ]);
 
         if ($validator->fails()) {
-            return ResponseHelper::createErrorResponse('Invalid medication id', 400);
+            return ApiResponseHelper::error('Validation Failed', $validator->errors()->first(), 400);
         }
         $medication = $this->medication->find($id);
         if (!$medication) {
-            return ResponseHelper::createErrorResponse('Medication not found', 404);
+            return ApiResponseHelper::error('Medication not found', $medication, 404);
         }
 
         $delete =  $medication->delete();
 
         if (!$delete) {
-            return ResponseHelper::createErrorResponse('Failed to delete medication', 500);
+            return ApiResponseHelper::error('Failed to update medication', $delete, 500);
         }
-        return new MedicationResource($medication);
+        $data = new MedicationResource($medication);
+        return ApiResponseHelper::success('Medication deleted successfully', $data);
     }
 }

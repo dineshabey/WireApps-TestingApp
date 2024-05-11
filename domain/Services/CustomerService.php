@@ -44,7 +44,6 @@ class CustomerService
         return ApiResponseHelper::success('customer found', $data);
     }
 
-
     public function store(Request $request)
     {
         // Validate the request data
@@ -126,6 +125,17 @@ class CustomerService
             return ApiResponseHelper::error('Failed to update customer', $delete, 500);
         }
         $data = new customerResource($customer);
+        return ApiResponseHelper::success('customer deleted successfully', $data);
+    }
+
+    public function softDelete($id)
+    {
+        $customer = Customer::find($id);
+        if (!$customer) {
+            return ApiResponseHelper::error('Customer not found', $customer, 500);
+        }
+
+        $data = $customer->delete();
         return ApiResponseHelper::success('customer deleted successfully', $data);
     }
 }

@@ -19,7 +19,11 @@ Route::get('customers', 'App\Http\Controllers\CustomerController@index');
 Route::post('customers', 'App\Http\Controllers\CustomerController@store');
 Route::get('customers/{id}', 'App\Http\Controllers\CustomerController@show');
 Route::put('customers/{id}', 'App\Http\Controllers\CustomerController@update');
+//Permanate delete
 Route::delete('customers/{id}', 'App\Http\Controllers\CustomerController@destroy');
+//Soft delete
+Route::delete('customers/{id}/softdelete', 'App\Http\CustomerController@softDelete');
+
 
 
 

@@ -33,4 +33,9 @@ class CustomerController extends Controller
         $response = CustomerFacade::destroy($id);
         return $response;
     }
+    public function softDelete($id)
+    {
+        $response = CustomerFacade::softDelete($id);
+        return $response;
+    }
 }

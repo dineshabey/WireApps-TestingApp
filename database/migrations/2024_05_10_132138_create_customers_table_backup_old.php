@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->text('address')->nullable();
+            $table->integer('delete_type')->default(1)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

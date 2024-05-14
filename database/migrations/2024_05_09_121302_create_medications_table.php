@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->integer('quantity');
+            $table->integer('delete_type')->default(1)->nullable();
             $table->timestamps();
         });
     }

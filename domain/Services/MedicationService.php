@@ -110,17 +110,41 @@ class MedicationService
         if ($validator->fails()) {
             return ApiResponseHelper::error('Validation Failed', $validator->errors()->first(), 400);
         }
-        $medication = $this->medication->find($id);
+
+        $medication = Medication::withTrashed()->find($id);
         if (!$medication) {
             return ApiResponseHelper::error('Medication not found', $medication, 404);
         }
 
-        $delete =  $medication->delete();
+        $delete =  $medication->forceDelete();
 
         if (!$delete) {
             return ApiResponseHelper::error('Failed to update medication', $delete, 500);
         }
         $data = new MedicationResource($medication);
         return ApiResponseHelper::success('Medication deleted successfully', $data);
+    }
+
+
+    public function softDelete($id)
+    {
+        $validator = Validator::make(['id' => $id], [
+            'id' => 'required|numeric|exists:medications,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()], 400);
+        }
+
+        $medication = Medication::find($id);
+
+        if (!$medication) {
+            return response()->json(['error' => 'Medication not found'], 404);
+        }
+
+        // Perform the soft delete
+        $medication->delete();
+
+        return response()->json(['message' => 'Medication soft deleted successfully'], 200);
     }
 }

@@ -46,7 +46,7 @@ class CustomerService
 
     public function store(Request $request)
     {
-        // Validate the request data
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'nullable|string',
@@ -131,11 +131,23 @@ class CustomerService
     public function softDelete($id)
     {
         $customer = Customer::find($id);
+
         if (!$customer) {
-            return ApiResponseHelper::error('Customer not found', $customer, 500);
+            return ApiResponseHelper::error('Customer not found', $customer, 404);
         }
 
-        $data = $customer->delete();
-        return ApiResponseHelper::success('customer deleted successfully', $data);
+        if ($customer->trashed()) {
+            // Customer has already been soft deleted
+            return ApiResponseHelper::error('Customer has already been soft deleted', $customer, 404);
+        }
+
+        $softDelete = $customer->delete();
+
+        if (!$softDelete) {
+            return ApiResponseHelper::error('Failed to soft delete customer', $softDelete, 500);
+        }
+
+        $data = new CustomerResource($customer);
+        return ApiResponseHelper::success('Customer soft deleted successfully', $data);
     }
 }

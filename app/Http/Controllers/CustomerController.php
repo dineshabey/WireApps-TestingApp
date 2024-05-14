@@ -5,37 +5,67 @@ namespace App\Http\Controllers;
 use domain\Facades\CustomerFacade;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Gate;
+
 class CustomerController extends Controller
 {
     public function index()
     {
-        $response = CustomerFacade::all();
-        return $response;
+        if (Gate::allows('view-customer')) {
+            $response = CustomerFacade::all();
+            return $response;
+        } else {
+            return response()->json(['error' => 'Permission denied '], 403);
+        }
     }
+
     public function show($id)
     {
-        $response = CustomerFacade::show($id);
-        return $response;
+        if (Gate::allows('view-customer')) {
+            $response = CustomerFacade::show($id);
+            return $response;
+        } else {
+            return response()->json(['error' => 'Permission denied '], 403);
+        }
     }
+
     public function store(Request $request)
     {
-        $response = CustomerFacade::store($request);
-        return $response;
+        if (Gate::allows('create-customer')) {
+            $response = CustomerFacade::store($request);
+            return $response;
+        } else {
+            return response()->json(['error' => 'Permission denied '], 403);
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $response = CustomerFacade::update($request, $id);
-        return $response;
+        if (Gate::allows('update-customer')) {
+            $response = CustomerFacade::update($request, $id);
+            return $response;
+        } else {
+            return response()->json(['error' => 'Permission denied '], 403);
+        }
     }
+
     public function destroy($id)
     {
-        $response = CustomerFacade::destroy($id);
-        return $response;
+        if (Gate::allows('delete-customer')) {
+            $response = CustomerFacade::destroy($id);
+            return $response;
+        } else {
+            return response()->json(['error' => 'Permission denied '], 403);
+        }
     }
+
     public function softDelete($id)
     {
-        $response = CustomerFacade::softDelete($id);
-        return $response;
+        if (Gate::allows('soft-delete-customer')) {
+            $response = CustomerFacade::softDelete($id);
+            return $response;
+        } else {
+            return response()->json(['error' => 'Permission denied'], 403);
+        }
     }
 }
